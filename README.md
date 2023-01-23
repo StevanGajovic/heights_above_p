@@ -7,7 +7,7 @@ Conditions on points $P,Q,R,S\in C(\mathbb{Q}_p)$:
 
 (3) Affine points do not belong to residue discs at infinity, unless $\{P,Q\}$ or $\{R,S\}$ are in the same residue disc.
 
-*** When two points at infinity appear, we consider only the case when $f$ has an even degree, otherwise $f$ can have an arbitrary degree greater than two.
+*** When two points at infinity appear, we consider only the case when $f$ has even degree, otherwise $f$ can have arbitrary degree greater than two.
 
 Then (some commands):
 
