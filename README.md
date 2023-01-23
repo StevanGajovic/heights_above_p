@@ -1,5 +1,4 @@
-This is ode to compute the local compotent of the p-adic (Coleman-Gross) height above p on a hyperelliptic curve $C:y^2=f(x)$ where p is a prime of good  reduction. For given points $P,Q,R,S$ in $C(\mathbb{Q}_p)$ satisfying the conditions below, computes $h_p(P-Q,R-S)$:
-Conditions on points $P,Q,R,S\in C(\mathbb{Q}_p)$:
+This is code to compute the local component of the local $p$-adic height above $p$ on a hyperelliptic curve $C:y^2=f(x)$ over $\mathbb{Q}_p$, where p is a prime of good  reduction. For given points $P,Q,R,S$ in $C(\mathbb{Q}_p)$ satisfying the following conditions, this computes $h_p(P-Q,R-S)$:
 
 (1) Either all four points are affine, or one pair of $\{P,Q\}$ and $\{R,S\}$ is the difference $\infty_- -\infty_+$ of points at infinity.
 
