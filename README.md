@@ -1,6 +1,6 @@
 This code computes the local $p$-adic height $h_p$ on a hyperelliptic curve $C\colon y^2=f(x)$ over $\mathbb{Q}_p$ with good reduction using the construction of Coleman and Gross. More precisely, it computes $h_p(P-Q,R-S)$ for given points $P,Q,R,S$ in $C(\mathbb{Q}_p)$ satisfying the following conditions:
 
-(1) Either all four points are affine, or $\deg(f)$ is even with square leading coefficients and $\{P,Q\} =\{\infty_1,\infty_2\}$ or $\{R,S\} =\{\infty_1,\infty_2\}$, where $\infty_{1/2}\in C(\Q_p)$ are the points at infinity.
+(1) Either all four points are affine, or $\deg(f)$ is even with square leading coefficients and $\{P,Q\} =\{\infty_1,\infty_2\}$ or $\{R,S\} =\{\infty_1,\infty_2\}$, where $\infty_{1/2}\in C(\mathbb{Q}_p)$ are the points at infinity.
 
 (2) The residue discs containing $P$ and $Q$ are distinct from the residue discs containing $R$, $\iota(R)$, $S$, $\iota(S)$, where $\iota$ is the hyperelliptic involution.
 
