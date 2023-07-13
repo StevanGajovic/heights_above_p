@@ -40,4 +40,4 @@ comparisons with Balakrishnan's implementation of the algorithm of
 Balakrishnan--Besser for odd degree.
 
 **Authors**
-Stevan Gajovi\'c and Steffen M\"uller
+Stevan Gajović and Steffen Müller
