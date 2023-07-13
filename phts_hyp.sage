@@ -37,6 +37,7 @@ The local height $h_p$ depends on the choice of
 - a subspace $W$ of $H^1_{dR}(C)$, complementary to the image of the space
   of holomorphic forms. We also assume that $W$ is isotropic with respect 
   to the cup product, so that $h_p$ is symmetric.
+
 Our code constructs a basis $\langle[\eta_0],\ldots,[\eta_{2g-1}]\rangle$ of
 H^1_{dR}(C)$ such that $\eta_0,\dlots,\eta_{g-1}$ are holomorphic.
 If $p$ is a prime of good ordinary reduction, there is a natural choice for
@@ -58,6 +59,13 @@ $\psi(x^gdx/y)$ using "psi_omega_for_infinities" and to pass it to
 "height_infinities" (or "tiny_height_infinities") via the parameter "M", 
 since this is needed in all of these computations.
 
+*Precision*
+Several functions have an optional parameter prec. This is the target
+precision; the precision of the result may be lower, but the result is 
+guaranteed to be correct to its precision.
+However, the precision of the result cannot exceed the precision of 
+the curve $C$; to get higher precision of the result, increase the precision
+of $C$.
 
 """
 
@@ -96,6 +104,7 @@ def local_coordinates_at_infinity_even(C, prec = 20, name = 't'):
         y = (y + f/y)/2
     return (x+O(t**(prec+2)) , y+O(t**(prec+2)))
 
+
 def h1dr_basis(C):
     """
     Extract a basis of $H^1_{dR}(C)$ from $H^1_{MW}(U)$.
@@ -120,6 +129,7 @@ def h1dr_basis(C):
             diff_xxyy = xx^i*w
             L = L + [(diff_xxyy-r/c *wg_xxyy)]
         return [xx^i*w for i in range(g)] + L
+
 
 def matrix_of_frobenius_on_h1mw_h1dr(C, p, prec=20):
     """
@@ -147,6 +157,7 @@ def matrix_of_frobenius_on_h1mw_h1dr(C, p, prec=20):
                 FH[i,j] = F[i+1,j+1] + basis[j].coeffs()[0][0][g]*F[i+1,g]
     return F, FH
 
+
 def cup_product_matrix(C, basis):
     """
     Computes the cup product matrix on $H^1_{dR}(C)$ with respect to an odd basis.
@@ -164,8 +175,10 @@ def cup_product_matrix(C, basis):
         coeffs = basis[i].coeffs()[0][0]  # x-coefficients of the ith basis element
         w[i] = sum([coeffs[j]*x^j for j in range(len(coeffs))])*xprime/(2*y)  # Replace by local x-coord at infinity
     wint = [(w[i]).integral() for i in range(2*g)]
+    # Residue at \infty_- and \infty_+ is the same, so we can compute 
+    # only one and multiply by two
     return (f.degree()-2*g)*matrix(C.base_ring(), 2*g,2*g, [(w[j]*wint[i]).residue() for i in range(2*g) for j in range(2*g)])
-# Residue at \infty_- and \infty_+ is the same, so we can compute only one and multiply by two
+
 
 def maxranksubmatrices(N):
     """
@@ -183,6 +196,7 @@ def maxranksubmatrices(N):
             N2 = N1.delete_columns([d-1])
             return [N1, i] + maxranksubmatrices(N2)
 
+
 def correctorder(L):
     """
     Counts in which order rows "survive" from maxranksubmatrices().
@@ -195,6 +209,7 @@ def correctorder(L):
         L[i] = c
     return L + ind
 
+
 def indicesofrows(L):
     """
     From maxranksubmatrices(), extracts the sequence of indices of holomorphic forms used in obtaining a symplectic basis w.r.t. the cup product.
@@ -204,6 +219,7 @@ def indicesofrows(L):
     L3 = correctorder(L2)
     L3.reverse()
     return L3
+
 
 def symplectic_h1dr_basis(C):
     """
@@ -244,6 +260,7 @@ def symplectic_h1dr_basis(C):
                 newcoeffs[i,k] = newcoeffs[i][k]/CPM[g-1-i][g+i]
     return newbasis, newcoeffs
 
+
 def changebasistosymplectic(C):
     """
     Returns a matrix that changes our basis of $H^1_{dR}(C)$ to a
@@ -256,6 +273,7 @@ def changebasistosymplectic(C):
     I = identity_matrix(2*g).matrix_from_rows(range(g)).list()
     M = matrix(2*g,2*g, I + F2)
     return M
+
 
 def changebasistounitroot(C, prec=20):
     """
@@ -277,6 +295,7 @@ def changebasistounitroot(C, prec=20):
     M = matrix(2*g,2*g, I + F2)
     return M
 
+
 def opposite_affine_point(P):
     """
     For $P=(x,y)$ on $C$ returns $\iota(P)=(x,-y)$.
@@ -286,6 +305,7 @@ def opposite_affine_point(P):
         return false
     else:
         return C(P[0],-P[1])
+
 
 def psi_omega_for_infinities(C, prec=20, BasisW = None):
     """
@@ -313,6 +333,7 @@ def psi_omega_for_infinities(C, prec=20, BasisW = None):
             raise ValueError('Need ordinary reduction for the unit root subspace.')
         BasisW = changebasistounitroot(C, prec)
     return (BasisW.transpose())^(-1) * M1
+
 
 def tiny_height_infinities(P, Q, prec=20, M=None, BasisW=None):
     """
@@ -355,6 +376,7 @@ def tiny_height_infinities(P, Q, prec=20, M=None, BasisW=None):
     for i in range(g):
         s = s - M[i][0]*PI[i]
     return s
+
 
 def height_infinities(P, Q, prec=20, M=None, BasisW=None):
     """
@@ -436,8 +458,7 @@ BasisW=None):
         raise ValueError('Need an even degree model')
     if P[0].valuation() < 0 or Q[0].valuation() < 0:
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    return height_infinities_residuedisc_to_z(P, prec, M, BasisW) +
-height_infinities(P, Q, prec, M, BasisW)
+    return height_infinities_residuedisc_to_z(P, prec, M, BasisW) + height_infinities(P, Q, prec, M, BasisW)
 
 
 def tiny_integrals_on_basis_parametric(b, z, tadicprec=20):
@@ -488,8 +509,7 @@ tadicprec=20, M=None, BasisW=None):
         raise ValueError('Need an even degree model')
     if P[0].valuation() < 0 or Q[0].valuation() < 0:
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    return height_infinities_residuedisc_parametric(P, z, prec, tadicprec,
-M, BasisW) + height_infinities(P, Q, prec, M, BasisW)
+    return height_infinities_residuedisc_parametric(P, z, prec, tadicprec, M, BasisW) + height_infinities(P, Q, prec, M, BasisW)
 
 
 def weierstrass_point_in_disc(P):
@@ -648,8 +668,7 @@ def height_both_antisymmetric_infinity_disc(P, R, prec=20, BasisW=None):
         M = psi_omega_for_infinities(C, prec, BasisW)
         residueintegral = F(1/R[0])
         holomorphicintegral = sum(N[i][0]*(((x^i*x.derivative()/(2*y)).integral())(1/R[0])) for i in range(g))
-        return 2*(residueintegral - holomorphicintegral) +
-height_infinities(P, NP, prec, M, BasisW)
+        return 2*(residueintegral - holomorphicintegral) + height_infinities(P, NP, prec, M, BasisW)
 
 def same_or_opposite_residue_disc(P,Q):
     """
@@ -681,12 +700,10 @@ def height_both_antisymmetric(P, R, prec=20, BasisW=None):
         return height_both_antisymmetric(R, P, prec, BasisW)
     if R[0].valuation() < 0:
         if mod(R[0]^(g+1)/R[1],p) == -1:
-            return height_both_antisymmetric_infinity_disc(P, R, prec,
-BasisW)
+            return height_both_antisymmetric_infinity_disc(P, R, prec, BasisW)
         if mod(R[0]^(g+1)/R[1],p) == 1:
             NR = opposite_affine_point(R)
-            return (-1)*height_both_antisymmetric_infinity_disc(P, NR,
-prec, BasisW)
+            return (-1)*height_both_antisymmetric_infinity_disc(P, NR, prec, BasisW)
     NR = opposite_affine_point(R)
     N = psi_forP_mixed_basis(P, prec, BasisW)
     if is_in_weierstrass_disc2(R):
@@ -735,8 +752,14 @@ def height_four_affine_points(P, Q, R, S, prec=20, BasisW=None):
     Then M will be computed with respect to this decomposition of $H^1_{dR}(C)$.
     If BasisW = None, then we assume that $p$ is ordinary and 
     $W$ = the unit root subspace.
-    """
 
+
+    Precision: prec is the target precision; the precision of the result 
+    may be lower, but the result is guaranteed to be correct to its 
+    precision. However, the precision of the result cannot exceed the 
+    precision of the curve $C$; to get higher precision of the result, 
+    increase the precision of $C$.
+    """
     if P in [R,S] or Q in [R,S]:
         raise ValueError('Need disjoint support')
     if P == Q or R == S:
@@ -750,6 +773,7 @@ def height_four_affine_points(P, Q, R, S, prec=20, BasisW=None):
     hasp = height_first_antisymmetric(P, R, S, prec, BasisW)
     hasq = height_first_antisymmetric(Q, R, S, prec, BasisW)
     return 1/2 * (logsympart + hasp - hasq)
+
 
 def height_infinity_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
@@ -767,8 +791,8 @@ def height_infinity_three_affine_points(Q, R, S, prec=20, BasisW=None):
     K = C.base_ring()
     b = (S[0]-Q[0]) * (R[0]-Q[0])^(-1)
     logsympart = K(b).log(p_branch=0)
-    return 1/2 * (logsympart - height_first_antisymmetric(Q, R, S, prec,
-BasisW))
+    return 1/2 * (logsympart - height_first_antisymmetric(Q, R, S, prec, BasisW))
+
 
 def height_infinity_minus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
@@ -786,8 +810,8 @@ def height_infinity_minus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     K = C.base_ring()
     b = (S[0]-Q[0]) * (R[0]-Q[0])^(-1)
     logsympart = K(b).log(p_branch=0)
-    return 1/2 * (logsympart + height_infinities(R, S, prec, BasisW) -
-height_first_antisymmetric(Q, R, S, prec, BasisW))
+    return 1/2 * (logsympart + height_infinities(R, S, prec, BasisW) - height_first_antisymmetric(Q, R, S, prec, BasisW))
+
 
 def height_infinity_plus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
@@ -806,8 +830,8 @@ def height_infinity_plus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     NQ = opposite_affine_point(Q)
     NR = opposite_affine_point(R)
     NS = opposite_affine_point(S)
-    return height_infinity_minus_three_affine_points(NQ, NR, NS, prec,
-BasisW)
+    return height_infinity_minus_three_affine_points(NQ, NR, NS, prec, BasisW)
+
 
 def SplitDivisorsDegreeZero(div):
     """
@@ -850,8 +874,7 @@ def height_divisors(D1, D2, prec=20, BasisW=None):
     f = C.hyperelliptic_polynomials()[0]
     L1 = SplitDivisorsDegreeZero(D1)
     L2 = SplitDivisorsDegreeZero(D2)
-    return sum(height_four_affine_points(L1[i][0][1], L1[i][1][1],
-L2[j][0][1], L2[j][1][1], prec, BasisW) for i in range(len(L1)) for j in range(len(L2)))
+    return sum(height_four_affine_points(L1[i][0][1], L1[i][1][1], L2[j][0][1], L2[j][1][1], prec, BasisW) for i in range(len(L1)) for j in range(len(L2)))
 
 
 def pair_out(A, B):
@@ -862,6 +885,7 @@ def pair_out(A, B):
         return [(1, A[i]) for i in range(len(A))] + [(-1, B[j]) for j in range(len(B))]
     else:
         return false
+
 
 def move_to_monic1(C, L):
     """
@@ -898,6 +922,7 @@ def move_to_monic1(C, L):
     Lnew = [[X(L[i][j][0]*f[2*g+2], L[i][j][1]*sqrt(K(f[2*g+2]))^(2*g+1)) for j in range(len(L[i]))] for i in range(len(L))]
     return X, Lnew
 
+
 def move_to_monic2(C, P, L):
     """
     This function returns a monic even model of $C$ by using the same 
@@ -921,8 +946,6 @@ def move_to_monic2(C, P, L):
         Lnew = [[X(1/(L[i][j][0]-P[0]), (-1)* L[i][j][1]/(P[1]*(L[i][j][0]-P[0])^(g+1))) for j in range(len(L[i]))] for i in range(len(L))]
         return X, Lnew   
 
-# TODO: Add to documentation: If you want to get higher prec, need to raise
-# prec of the curve
 
 
 
