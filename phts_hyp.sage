@@ -1,41 +1,64 @@
 
 
 """
-This is code to compute the local component of the p-adic
-(Coleman-Gross) height above p on hyperelliptic curve $C:y^2=f(x)$ with
-good reduction at p. For given points $P,Q,R,S\in C(\mathbb{Q}_p)$
-satisfying the conditions below, this code computes $h_p(P-Q,R-S)$.
+This SageMath code computes the local cyclotomic p-adic (Coleman--Gross) height
+$h_p$ on a hyperelliptic curve $C:y^2=f(x)$ over $\mathbb{Q}_p$ with good 
+reduction. 
+More precisely, it computes $h_p(P-Q,R-S)$ for
+$P,Q,R,S\in C(\mathbb{Q}_p)$ satisfying the following conditions:
+- $f$ is monic (one can use move_to_monic1 or move_to_monic2 if this is not
+  satisfied);
+- the residue discs $D(P)$ and $D(Q)$ of $P$ and $Q$ are distinct from
+  $D(R)$, $D(\iota(R))$, $D(S)$ and $D(\iota(S))$, where $\iota$ is the
+  hyperelliptic involution.
 
-The curve $C$ is assumed to be given by a monic model, and there is a change of variables that, if possible, changes the given curve and its points to a monic model and the corresponding points.
+*Dependencies*
+Jennifer Balakrishnan's code for even degree Coleman integrals is required.
+Download it from https://github.com/jbalakrishnan/AWS and follow the 
+instructions given there.
 
-Conditions on points $P,Q,R,S\in C(\mathbb{Q}_p)$:
-Residue discs of $P$ and $Q$ are distinct of residue discs of $R$, $\iota(R)$, $S$, $\iota(S)$, where $\iota$ is the hyperelliptic involution.
+*Main functions*
+- height_infinities(P, Q, prec) computes $h_p(\infty_- - \infty_+, P-Q)$
+  for even degree models to precision prec. 
+- height_four_affine_points(P, Q, R, S, prec) computes $h_p(P-Q, R-S)$ for
+  affine $P,Q,R,S$ to precision prec.
+- height_divisors(D1, D2) computes $h_p(D_1, D_2)$ for two degree 0
+  divisors $D_1,D_2$ on $C$ with disjoint an pointwise $\Q_p$-rational 
+- height_infinities_residuedisc_to_z(P) computes $h_p(\infty_- - \infty_+,
+  P(z)-P)$, where $P(z)$ is a parametric point in the residue disc of $P$ 
+  (used for quadratic Chabauty).
+  support.
 
-The local height $h_p$ depends on the decomposition of
-$H^1_{dR}(C)=\langle\eta_0,\ldots,\eta_{2g-1}\rangle$ into the space of
-holomorphic forms $\langle\eta_0,\ldots,\eta_{g-1}\rangle$ and the coplementary space to the holomorphic forms, denoted $W$.
-We want $h_p$ to be symmetric and that is precisely the case when $W$ is isotropic w.r.t the cup product pairing.
+*Auxiliary choices*
+The local height $h_p$ depends on the choice of 
+- a continuous homomorphism $\chi_p\colon \mathbb{Q}_p^{\ast} \rightarrow
+  \Q_p$: in our case $\chi_p$ is the branch of the $p$-adic logarithm that
+  satisfies $\log_p(p)=0$;
+- a subspace $W$ of $H^1_{dR}(C)$, complementary to the image of the space
+  of holomorphic forms. We also assume that $W$ is isotropic with respect 
+  to the cup product, so that $h_p$ is symmetric.
+Our code constructs a basis $\langle[\eta_0],\ldots,[\eta_{2g-1}]\rangle$ of
+H^1_{dR}(C)$ such that $\eta_0,\dlots,\eta_{g-1}$ are holomorphic.
 If $p$ is a prime of good ordinary reduction, there is a natural choice for
-$W$, namely the unit root subspace, in which case we can take its basis
-modulo $p^{prec}$ to be $Frob^{prec}(\eta_g),\ldots, Frob^{prec}(\eta_{2g-1})$.
-There is also a function "is_ordinary" that checks if $C$ has ordinary reduction at p.
-This case is particularly important because it appears in the $p$-adic version of the Birch and Swinnerton-Dyer conjecture.
-However, our algorithm can work for any complementary subspace $W$ which is isotropic w.r.t the cup product pairing.
-Two special cases, when $W$ is the unit root subspace, or when $W$ is a complement to form a symplectic basis, are already constructed in our algorithm, but users can use other $W$.
-"BasisComplementary" is an optional parameter used for a change a basis of
-$\langle\eta_0,\ldots,\eta_{2g-1}\rangle$ to a basis
-$\langle\eta_0,\ldots,\eta_{g-1},\kappa_0,\ldots,\kappa_{g-1}\rangle$,
-where $\langle\kappa_0,\ldots,\kappa_{g-1}\rangle$ is the chosen basis for a complementary subspace W that is isotropic w.r.t. the cup product.
-As we have already mentioned, a symplectic basis always satisfies this condition, and "symplectic_h1dr_basis" computes a matrix of a base change to a symplectic basis.
-If "BasisComplementary" is not specified, then the algorithm assumes that p
-is ordinary and that $W$ is the unit-root subspace given with a working
-basis $Frob^{prec}(\eta_g),\ldots, Frob^{prec}(\eta_{2g-1})$.
+$W$, namely the unit root subspace with respect to Frobenius, which is
+generated modulo $p^{prec}$ by 
+$Frob^{prec}(\eta_g),\ldots, Frob^{prec}(\eta_{2g-1})$, see the function
+"changebasistounitroot". This case is particularly important because it appears 
+in the $p$-adic version of the Birch and Swinnerton-Dyer conjecture; hence
+it is the default subspace in our code. However, our algorithm works for any 
+isotropic complementary subspace $W$. For instance our function 
+"symplectic_h1dr_basis" computes a complementary subspace whose basis 
+extends $[\eta_0],\ldots,[\eta_{g-1}]$ to a symplectic basis with respect to
+the cup product. Other subspaces can be specified by the user using the 
+optional parameter "W". 
 
-The most important functions:
-height_infinities(P, Q, prec):    Computes h_p(\infty_- - \infty_+, P-Q) up to precision prec (only for even degree, odd degree: returns zero).
-height_four_affine_points(P, Q, R, S, prec):    Computes h_p(P-Q, R-S) up to precision prec.
-height_infinities_residuedisc_to_z(P, prec=20, M=None, BasisComplementary=None):    Computes $h_p(\infty_- - \infty_+, P(z)-P)$ where $P(z)$ is a parametricpoint in the residue disc of $P$ (used for quadratic Chabauty).
-There are more functions to compute heights in different cases, see examples for them.
+If several heights of the form $h_p(\infty_--\infty_+, P-Q)$ on the same
+curve have to be computed, then it makes sense to precompute
+$\psi(x^gdx/y)$ using "psi_omega_for_infinities" and to pass it to
+"height_infinities" (or "tiny_height_infinities") via the parameter "M", 
+since this is needed in all of these computations.
+
+
 """
 
 def is_ordinary(C, p):
@@ -264,12 +287,12 @@ def opposite_affine_point(P):
     else:
         return C(P[0],-P[1])
 
-def psi_omega_for_infinities(C, prec=20, BasisComplementary = None):
+def psi_omega_for_infinities(C, prec=20, BasisW = None):
     """
-    Computes $\psi(x^gdx/y)$ in the mixed basis of $g$ holomorphic forms 
+    Computes $\psi(x^gdx/y)$ in the basis consisting of $g$ holomorphic forms 
     $\eta_0,...,\eta_{g-1}$ and the basis of the chosen complementary subspace 
-    $W$; BasisComplementary is the matrix of that base change from 
-    $\eta_0,...,\eta_{2g-1}$. If BasisComplementary = None and $p$ ordinary, 
+    $W$; BasisW is the matrix of that base change from 
+    $\eta_0,...,\eta_{2g-1}$. If BasisW = None and $p$ ordinary, 
     assumes that $W$ is the unit-root subspace with the basis 
     $Frob^{prec}(\eta_g)$,...,$Frob^{prec}(\eta_{2g-1})$.
     """
@@ -285,13 +308,13 @@ def psi_omega_for_infinities(C, prec=20, BasisComplementary = None):
     for i in range(g,2*g):
         M[i,0] = 2*FrMW[i+1][g]
     M1 = (Fr-p*identity_matrix(2*g))^(-1) * M
-    if BasisComplementary == None:
+    if BasisW == None:
         if not is_ordinary(C, p):
             raise ValueError('Need ordinary reduction for the unit root subspace.')
-        BasisComplementary = changebasistounitroot(C, prec)
-    return (BasisComplementary.transpose())^(-1) * M1
+        BasisW = changebasistounitroot(C, prec)
+    return (BasisW.transpose())^(-1) * M1
 
-def tiny_height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
+def tiny_height_infinities(P, Q, prec=20, M=None, BasisW=None):
     """
     Only works for even degree model. If $P$ and $Q$ are in the same residue disc 
     of an even degree hyperelliptic curve $C$, computes 
@@ -303,18 +326,19 @@ def tiny_height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
     HINT: If we want to compute many heights of the shape 
       $h_p(\infty_- - \infty_+, P-Q)$ for various $P,Q\in C(\mathbb{Q}_p)$ 
       (e.g., in quadratic Chabauty), then we always compute an integral of the 
-      same differential. Therefore, to save the time and memory, one can pass
+      same differential. Therefore, to save time and memory, one can pass
       the precomputed matrix M that gives the coordinates of $\psi(x^gdx/y)$ 
-      in the mixed basis we choose. If we give M as a parameter, we don't 
-      need to specify BasisComplementary.
+      in the basis of of $H^1_{dR}(C)$ consisting of
+      $\eta_0,...,\eta_{g-1}$ and the given basis of the complementary subspace.
+      If we give M as a parameter, we don't need to specify W.
 
-    If we don't give M as a parameter, then we can specify BasisComplementary, 
+    If we don't give M as a parameter, then we can specify BasisW, 
     which is the matrix of the base change of $H^1_{dR}(C)$ from 
     $\eta_0,...,\eta_{2g-1}$ to $\langle\eta_0,...,\eta_{g-1}\rangle \oplus W$ 
     for any complementary subspace $W$ isotropic w.r.t. the cup product pairing. 
     Then M will be computed with respect to this decomposition of $H^1_{dR}(C)$.
 
-    If BasisComplementary = None, then we assume that $p$ is ordinary and 
+    If BasisW = None, then we assume that $p$ is ordinary and 
     $W$ = the unit root subspace.
     """
     C = P.scheme()
@@ -325,14 +349,14 @@ def tiny_height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
     f = C.hyperelliptic_polynomials()[0]
     g = C.genus()
     if M is None:
-        M = psi_omega_for_infinities(C, prec, BasisComplementary)
+        M = psi_omega_for_infinities(C, prec, BasisW)
     PI = C.tiny_integrals_on_basis(Q,P)
     s = 2*PI[g]
     for i in range(g):
         s = s - M[i][0]*PI[i]
     return s
 
-def height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
+def height_infinities(P, Q, prec=20, M=None, BasisW=None):
     """
     Only works for even degree model. For $P, Q$ on an even degree hyperelliptic 
     curve, this computes
@@ -342,18 +366,18 @@ def height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
     HINT: If we want to compute many heights of the shape 
       $h_p(\infty_- - \infty_+, P-Q)$ for various $P,Q\in C(\mathbb{Q}_p)$ 
       (e.g., in quadratic Chabauty), then we always compute an integral of the 
-      same differential. Therefore, to save the time and memory, one can pass
+      same differential. Therefore, to save time and memory, one can pass
       the precomputed matrix M that gives the coordinates of $\psi(x^gdx/y)$ 
       in the mixed basis we choose. If we give M as a parameter, we don't 
-      need to specify BasisComplementary.
+      need to specify BasisW.
 
-    If we don't give M as a parameter, then we can specify BasisComplementary, 
+    If we don't give M as a parameter, then we can specify BasisW, 
     which is the matrix of the base change of $H^1_{dR}(C)$ from 
     $\eta_0,...,\eta_{2g-1}$ to $\langle\eta_0,...,\eta_{g-1}\rangle \oplus W$ 
     for any complementary subspace $W$ isotropic w.r.t. the cup product pairing. 
     Then M will be computed with respect to this decomposition of $H^1_{dR}(C)$.
 
-    If BasisComplementary = None, then we assume that $p$ is ordinary and 
+    If BasisW = None, then we assume that $p$ is ordinary and 
     $W$ = the unit root subspace.
 
     """
@@ -363,12 +387,10 @@ def height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
     f = C.hyperelliptic_polynomials()[0]
     if not is_even(f.degree()):
         raise ValueError('Need an even degree model')
-    if P[0].valuation() < 0:
-        raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    if Q[0].valuation() < 0:
+    if P[0].valuation() < 0 or Q[0].valuation() < 0:
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
     if M is None:
-        M = psi_omega_for_infinities(C, prec, BasisComplementary)
+        M = psi_omega_for_infinities(C, prec, BasisW)
     g = C.genus()
     PI = coleman_integrals_on_basis_modified(Q,P)
     s = 2*PI[g]
@@ -377,11 +399,11 @@ def height_infinities(P, Q, prec=20, M=None, BasisComplementary=None):
     return s
 
 
-def height_infinities_residuedisc_to_z(P, prec=20, M=None, BasisComplementary=None):
+def height_infinities_residuedisc_to_z(P, prec=20, M=None, BasisW=None):
     """
     Only works for even degree model. Computes $h_p(\infty_- - \infty_+, P(z)-P)$ 
     where $P(z)$ is a parametric point in the residue disc of $P$.
-    See above for usage of M and BasisComplementary.
+    See above for usage of M and BasisW.
     """
     C = P.scheme()
     f = C.hyperelliptic_polynomials()[0]
@@ -391,7 +413,7 @@ def height_infinities_residuedisc_to_z(P, prec=20, M=None, BasisComplementary=No
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
     g = C.genus()
     if M is None:
-        M = psi_omega_for_infinities(C, prec, BasisComplementary)
+        M = psi_omega_for_infinities(C, prec, BasisW)
     PI = C.tiny_integrals_on_basis_to_z(P)
     s = 2*PI[g]
     for i in range(g):
@@ -399,23 +421,23 @@ def height_infinities_residuedisc_to_z(P, prec=20, M=None, BasisComplementary=No
     return s
 
 
-def height_infinities_first_point_residuedisc_to_z(P, Q, prec=20, M = None, BasisComplementary=None):
+def height_infinities_first_point_residuedisc_to_z(P, Q, prec=20, M = None,
+BasisW=None):
     """
     Only works for even degree model. Computes 
     $h_p(\infty_- - \infty_+, P(z)-Q)
      = h_p(\infty_- - \infty_+, P(z)-P)+h_p(\infty_- - \infty_+, P-Q)$,
     where $P(z)$ is a parametric point in the residue disc of $P$.
-    See above for usage of M and BasisComplementary.
+    See above for usage of M and BasisW.
     """
     C = P.scheme()
     f = C.hyperelliptic_polynomials()[0]
     if not is_even(f.degree()):
         raise ValueError('Need an even degree model')
-    if P[0].valuation() < 0:
+    if P[0].valuation() < 0 or Q[0].valuation() < 0:
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    if Q[0].valuation() < 0:
-        raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    return height_infinities_residuedisc_to_z(P, prec, M, BasisComplementary) + height_infinities(P, Q, prec, M, BasisComplementary)
+    return height_infinities_residuedisc_to_z(P, prec, M, BasisW) +
+height_infinities(P, Q, prec, M, BasisW)
 
 
 def tiny_integrals_on_basis_parametric(b, z, tadicprec=20):
@@ -430,7 +452,8 @@ def tiny_integrals_on_basis_parametric(b, z, tadicprec=20):
     return [((x**i)*x.derivative()/(2*y)).integral()(z) for i in range(d-1)]
 
 
-def height_infinities_residuedisc_parametric(P, z, prec=20, tadicprec=20, M=None, BasisComplementary=None):
+def height_infinities_residuedisc_parametric(P, z, prec=20, tadicprec=20,
+M=None, BasisW=None):
     """
     Only works for even degree model. Computes $h_p(\infty_- - \infty_+, P(z)-P)$,
     where $P(z)$ is a point in the residue disc of $P$ in the parameter z.
@@ -445,13 +468,14 @@ def height_infinities_residuedisc_parametric(P, z, prec=20, tadicprec=20, M=None
     PI = tiny_integrals_on_basis_parametric(P, z, tadicprec)
     s = 2*PI[g]
     if M is None:
-        M = psi_omega_for_infinities(C, prec, BasisComplementary)
+        M = psi_omega_for_infinities(C, prec, BasisW)
     for i in range(g):
         s = s - M[i][0]*PI[i]
     return s
 
 
-def height_infinities_first_point_residuedisc_parametric(P, Q, z, prec=20, tadicprec=20, M=None, BasisComplementary=None):
+def height_infinities_first_point_residuedisc_parametric(P, Q, z, prec=20,
+tadicprec=20, M=None, BasisW=None):
     """
     Only works for even degree model. Computes 
     $h_p(\infty_- - \infty_+, P(z)-Q)
@@ -462,11 +486,10 @@ def height_infinities_first_point_residuedisc_parametric(P, Q, z, prec=20, tadic
     f = C.hyperelliptic_polynomials()[0]
     if not is_even(f.degree()):
         raise ValueError('Need an even degree model')
-    if P[0].valuation() < 0:
+    if P[0].valuation() < 0 or Q[0].valuation() < 0:
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    if Q[0].valuation() < 0:
-        raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
-    return height_infinities_residuedisc_parametric(P, z, prec, tadicprec, M, BasisComplementary) + height_infinities(P, Q, prec, M, BasisComplementary)
+    return height_infinities_residuedisc_parametric(P, z, prec, tadicprec,
+M, BasisW) + height_infinities(P, Q, prec, M, BasisW)
 
 
 def weierstrass_point_in_disc(P):
@@ -541,11 +564,11 @@ def psi_forP_H1dR(P):
     return N^(-1)*M
 
 
-def psi_forP_mixed_basis(P, prec=20, BasisComplementary = None):
+def psi_forP_mixed_basis(P, prec=20, BasisW = None):
     """
     Computes $\psi(y(P)/(x-x(P))dx/y)$ in the mixed basis of holomorphic forms 
     and a basis for $W$ = the complementary space to the holomorphic forms
-    specified by the base change matrix BasisComplementary. If no such
+    specified by the base change matrix BasisW. If no such
     matrix is specified and $p$ is good ordinary, assumes $W$ = the unit root 
     subspace with basis $Frob^{prec}(\eta_g),...,Frob^{prec}(\eta_{2g-1})$.
     """
@@ -555,11 +578,11 @@ def psi_forP_mixed_basis(P, prec=20, BasisComplementary = None):
     p = K.prime()
     M = psi_forP_H1dR(P)
     f = C.hyperelliptic_polynomials()[0]
-    if BasisComplementary is None:
+    if BasisW is None:
         if not is_ordinary(C, p):
             raise ValueError('Need ordinary reduction for the unit root subspace.')
-        BasisComplementary = changebasistounitroot(C, prec)
-    return (BasisComplementary.transpose())^(-1) * M
+        BasisW = changebasistounitroot(C, prec)
+    return (BasisW.transpose())^(-1) * M
 
 
 def Coleman_Integral_third_kind_antisymmetric(P, R, S):
@@ -586,7 +609,7 @@ def Coleman_Integral_third_kind_antisymmetric(P, R, S):
         return 2*X.coleman_integrals_on_basis(S1,R1)[g]
 
 
-def height_both_antisymmetric_infinity_disc(P, R, prec=20, BasisComplementary=None):
+def height_both_antisymmetric_infinity_disc(P, R, prec=20, BasisW=None):
     """
     Computes $h_p(P-\iota(P), R-\iota(R))$ if $R$ is
     (1) in $\infty$ residue disc if $C$ is odd degree;
@@ -600,7 +623,7 @@ def height_both_antisymmetric_infinity_disc(P, R, prec=20, BasisComplementary=No
     C = P.scheme()
     NP = opposite_affine_point(P)
     g = C.genus()
-    N = psi_forP_mixed_basis(P, prec, BasisComplementary)
+    N = psi_forP_mixed_basis(P, prec, BasisW)
     f = C.hyperelliptic_polynomials()[0]
     tadicprec = prec
     while tadicprec+1-floor(log(tadicprec+1, p)) < prec:
@@ -622,10 +645,11 @@ def height_both_antisymmetric_infinity_disc(P, R, prec=20, BasisComplementary=No
             holomorphicintegral = holomorphicintegral + N[i][0]*(Fi(R[0]^g/R[1])-Fi(-R[0]^g/R[1]))
         return residueintegral - holomorphicintegral
     if f.degree() == 2*g+2:
-        M = psi_omega_for_infinities(C, prec, BasisComplementary)
+        M = psi_omega_for_infinities(C, prec, BasisW)
         residueintegral = F(1/R[0])
         holomorphicintegral = sum(N[i][0]*(((x^i*x.derivative()/(2*y)).integral())(1/R[0])) for i in range(g))
-        return 2*(residueintegral - holomorphicintegral) + height_infinities(P, NP, prec, M, BasisComplementary)
+        return 2*(residueintegral - holomorphicintegral) +
+height_infinities(P, NP, prec, M, BasisW)
 
 def same_or_opposite_residue_disc(P,Q):
     """
@@ -640,7 +664,7 @@ def same_or_opposite_residue_disc(P,Q):
         return false
     return false
 
-def height_both_antisymmetric(P, R, prec=20, BasisComplementary=None):
+def height_both_antisymmetric(P, R, prec=20, BasisW=None):
     """
     Computes $h_p(P-\iota(P), R-\iota(R))$.
     """
@@ -650,19 +674,21 @@ def height_both_antisymmetric(P, R, prec=20, BasisComplementary=None):
     f = C.hyperelliptic_polynomials()[0]
     g = C.genus()
     if (f.degree() == 2*g+1) & (R[0].valuation() < 0):
-        return height_both_antisymmetric_infinity_disc(P, R, prec, BasisComplementary)
+        return height_both_antisymmetric_infinity_disc(P, R, prec, BasisW)
     if is_in_weierstrass_disc2(P) & (is_in_weierstrass_disc2(R) == false):
-        return height_both_antisymmetric(R, P, prec, BasisComplementary)
+        return height_both_antisymmetric(R, P, prec, BasisW)
     if P[0].valuation() < 0:
-        return height_both_antisymmetric(R, P, prec, BasisComplementary)
+        return height_both_antisymmetric(R, P, prec, BasisW)
     if R[0].valuation() < 0:
         if mod(R[0]^(g+1)/R[1],p) == -1:
-            return height_both_antisymmetric_infinity_disc(P, R, prec, BasisComplementary)
+            return height_both_antisymmetric_infinity_disc(P, R, prec,
+BasisW)
         if mod(R[0]^(g+1)/R[1],p) == 1:
             NR = opposite_affine_point(R)
-            return (-1)*height_both_antisymmetric_infinity_disc(P, NR, prec, BasisComplementary)
+            return (-1)*height_both_antisymmetric_infinity_disc(P, NR,
+prec, BasisW)
     NR = opposite_affine_point(R)
-    N = psi_forP_mixed_basis(P, prec, BasisComplementary)
+    N = psi_forP_mixed_basis(P, prec, BasisW)
     if is_in_weierstrass_disc2(R):
         tadicprec = prec
         while tadicprec+1-floor(log(tadicprec+1, p)) < prec:
@@ -677,7 +703,7 @@ def height_both_antisymmetric(P, R, prec=20, BasisComplementary=None):
     return Coleman_Integral_third_kind_antisymmetric(P, R, NR) - sum(N[i][0]*IntegralsR[i] for i in range(g))
 
 
-def height_first_antisymmetric(P, R, S, prec=20, BasisComplementary=None):
+def height_first_antisymmetric(P, R, S, prec=20, BasisW=None):
     """
     Computes $h_p(P-\iota(P), R-S)$.
     """
@@ -685,16 +711,16 @@ def height_first_antisymmetric(P, R, S, prec=20, BasisComplementary=None):
         raise NotImplementedError('This case is not implemented yet. Please let us know if this would be useful for you.')
     C = P.scheme()
     if C.is_in_weierstrass_disc(P) or C.is_in_weierstrass_disc(R) or  C.is_in_weierstrass_disc(S):
-        hpr = height_both_antisymmetric(P, R, prec, BasisComplementary)
-        hps = height_both_antisymmetric(P, S, prec, BasisComplementary)
+        hpr = height_both_antisymmetric(P, R, prec, BasisW)
+        hps = height_both_antisymmetric(P, S, prec, BasisW)
         return 1/2 * hpr - 1/2 * hps
     g = C.genus()
     IntegralRS = C.coleman_integrals_on_basis(S,R)
-    N = psi_forP_mixed_basis(P, prec, BasisComplementary)
+    N = psi_forP_mixed_basis(P, prec, BasisW)
     colintPRS = Coleman_Integral_third_kind_antisymmetric(P, R, S)
     return colintPRS - sum(N[i][0]*IntegralRS[i] for i in range(g))
 
-def height_four_affine_points(P, Q, R, S, prec=20, BasisComplementary=None):
+def height_four_affine_points(P, Q, R, S, prec=20, BasisW=None):
     """
     Computes $h_p(P-Q, R-S)$ using the symmetric-antisymmetric decomposition of
     the first divisor to reduce to the previous cases. When necessary, we use other 
@@ -702,12 +728,12 @@ def height_four_affine_points(P, Q, R, S, prec=20, BasisComplementary=None):
     $h_p(P-Q, R-S)$ to the cases implemented above.
     Condition: $P$ and $Q$ belong to different residue discs than those of $R$, 
     $\iota(R)$, $S$ and $\iota(S)$.
-    We recall here: BasisComplementary is the matrix of the base change of 
+    We recall here: BasisW is the matrix of the base change of 
     $H^1_{dR}(C)$ from $\eta_0,...,\eta_{2g-1}$ to 
     $\langle\eta_0,...,\eta_{g-1}\rangle \oplus W$ for a complementary
     subspace $W$, isotropic w.r.t. the cup product pairing. 
     Then M will be computed with respect to this decomposition of $H^1_{dR}(C)$.
-    If BasisComplementary = None, then we assume that $p$ is ordinary and 
+    If BasisW = None, then we assume that $p$ is ordinary and 
     $W$ = the unit root subspace.
     """
 
@@ -721,11 +747,11 @@ def height_four_affine_points(P, Q, R, S, prec=20, BasisComplementary=None):
     K = C.base_ring()
     b = (R[0]-P[0]) * (R[0]-Q[0])^(-1) * (S[0]-Q[0]) * (S[0]-P[0])^(-1)
     logsympart = K(b).log(p_branch=0)
-    hasp = height_first_antisymmetric(P, R, S, prec, BasisComplementary)
-    hasq = height_first_antisymmetric(Q, R, S, prec, BasisComplementary)
+    hasp = height_first_antisymmetric(P, R, S, prec, BasisW)
+    hasq = height_first_antisymmetric(Q, R, S, prec, BasisW)
     return 1/2 * (logsympart + hasp - hasq)
 
-def height_infinity_three_affine_points(Q, R, S, prec=20, BasisComplementary=None):
+def height_infinity_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
     For an odd degree hyperelliptic curve $C$, computes $h_p(\infty-Q, R-S)$ 
     using a symmetric-antisymmetric decomposition of the first divisor.
@@ -741,9 +767,10 @@ def height_infinity_three_affine_points(Q, R, S, prec=20, BasisComplementary=Non
     K = C.base_ring()
     b = (S[0]-Q[0]) * (R[0]-Q[0])^(-1)
     logsympart = K(b).log(p_branch=0)
-    return 1/2 * (logsympart - height_first_antisymmetric(Q, R, S, prec, BasisComplementary))
+    return 1/2 * (logsympart - height_first_antisymmetric(Q, R, S, prec,
+BasisW))
 
-def height_infinity_minus_three_affine_points(Q, R, S, prec=20, BasisComplementary=None):
+def height_infinity_minus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
     For an even degree hyperelliptic curve $C$, computes $h_p(\infty_- -Q, R-S)$ 
     using a symmetric-antisymmetric decomposition of the first divisor.
@@ -759,9 +786,10 @@ def height_infinity_minus_three_affine_points(Q, R, S, prec=20, BasisComplementa
     K = C.base_ring()
     b = (S[0]-Q[0]) * (R[0]-Q[0])^(-1)
     logsympart = K(b).log(p_branch=0)
-    return 1/2 * (logsympart + height_infinities(R, S, prec, BasisComplementary) - height_first_antisymmetric(Q, R, S, prec, BasisComplementary))
+    return 1/2 * (logsympart + height_infinities(R, S, prec, BasisW) -
+height_first_antisymmetric(Q, R, S, prec, BasisW))
 
-def height_infinity_plus_three_affine_points(Q, R, S, prec=20, BasisComplementary=None):
+def height_infinity_plus_three_affine_points(Q, R, S, prec=20, BasisW=None):
     """
     For an even degree hyperelliptic curve $C$, computes 
     $h_p(\infty_+ -Q, R-S)$ by reducing to 
@@ -778,7 +806,8 @@ def height_infinity_plus_three_affine_points(Q, R, S, prec=20, BasisComplementar
     NQ = opposite_affine_point(Q)
     NR = opposite_affine_point(R)
     NS = opposite_affine_point(S)
-    return height_infinity_minus_three_affine_points(NQ, NR, NS, prec, BasisComplementary)
+    return height_infinity_minus_three_affine_points(NQ, NR, NS, prec,
+BasisW)
 
 def SplitDivisorsDegreeZero(div):
     """
@@ -812,16 +841,17 @@ def SplitDivisorsDegreeZero(div):
         return L + SplitDivisorsDegreeZero(div)
 
 
-def height_divisors(div1, div2, prec=20, BasisComplementary=None):
+def height_divisors(D1, D2, prec=20, BasisW=None):
     """
-    Computes $h_p(div1, div2)$ of two divisors of degree zero with disjoint 
+    Computes $h_p(D1, D2)$ of two divisors of degree zero with disjoint 
     affine support.
     """
-    C = div1[0][1].scheme()
+    C = D1[0][1].scheme()
     f = C.hyperelliptic_polynomials()[0]
-    L1 = SplitDivisorsDegreeZero(div1)
-    L2 = SplitDivisorsDegreeZero(div2)
-    return sum(height_four_affine_points(L1[i][0][1], L1[i][1][1], L2[j][0][1], L2[j][1][1], prec, BasisComplementary) for i in range(len(L1)) for j in range(len(L2)))
+    L1 = SplitDivisorsDegreeZero(D1)
+    L2 = SplitDivisorsDegreeZero(D2)
+    return sum(height_four_affine_points(L1[i][0][1], L1[i][1][1],
+L2[j][0][1], L2[j][1][1], prec, BasisW) for i in range(len(L1)) for j in range(len(L2)))
 
 
 def pair_out(A, B):
