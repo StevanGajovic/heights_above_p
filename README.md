@@ -1,5 +1,5 @@
-This SageMath code computes the local cyclotomic p-adic (Coleman--Gross) height
-$h_p$ on a hyperelliptic curve $C:y^2=f(x)$ over $\mathbb{Q}_p$ with good 
+This SageMath code computes the local cyclotomic p-adic Coleman--Gross height
+pairing $h_p$ on a hyperelliptic curve $C:y^2=f(x)$ over $\mathbb{Q}_p$ with good 
 reduction. 
 More precisely, it computes $h_p(P-Q,R-S)$ for
 $P,Q,R,S\in C(\mathbb{Q}_p)$ satisfying the following conditions:
@@ -9,7 +9,7 @@ $P,Q,R,S\in C(\mathbb{Q}_p)$ satisfying the following conditions:
   $D(R)$, $D(\iota(R))$, $D(S)$ and $D(\iota(S))$, where $\iota$ is the
   hyperelliptic involution.
 
-*Dependencies*
+**Dependencies**
 Jennifer Balakrishnan's code for even degree Coleman integrals is required.
 Download it from [https://github.com/jbalakrishnan/AWS](https://github.com/jbalakrishnan/AWS) and follow the 
 instructions given there.
