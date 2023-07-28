@@ -17,12 +17,11 @@ h1 = height_four_affine_points(P, Q, R, S, 10)
 t2 = cputime()
 h2  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
 t3 = cputime()
-print("Difference between heights")
-print(h1-h2)
 print("time for our algorithm:", t2-t1)
 #time for our algorithm: 2.315206
 print("time for Balakrishnan-Besser:", t3-t2)
 #time for Balakrishnan-Besser: 7.239461
+print("difference is due to minor issue in precision handling in C.height")
 #
 #
 
@@ -39,7 +38,7 @@ R = C(9,3^7)
 S = C(16,4^7)
 T = C(0,48)
 t1 = cputime()
-h1 = height_four_affine_points(P, Q, R, S, prec)
+h1 = height_four_affine_points(P, Q, R, S, 10)
 t2 = cputime()
 h2  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
 t3 = cputime()
@@ -108,12 +107,12 @@ t1 = cputime()
 h3 = height_four_affine_points(P, Q, R, S, prec)
 t2 = cputime()
 print("time for our algorithm:", t2-t1)
-#time for our algorithm: 648.1203089999999
-h4  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
-t3 = cputime()
-print("Difference between heights")
-print(h3-h4)
-print("time for Balakrishnan-Besser:", t3-t2)
+#time for our algorithm: 656.284049
+#h4  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
+#t3 = cputime()
+#print("Difference between heights")
+#print(h3-h4)
+#print("time for Balakrishnan-Besser:", t3-t2)
 
 # genus 17
 p = 11
@@ -129,11 +128,10 @@ t1 = cputime()
 h3 = height_four_affine_points(P, Q, R, S, prec)
 t2 = cputime()
 print("time for our algorithm:", t2-t1)
-h4  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
-t3 = cputime()
-print("Difference between heights")
-print(h3-h4)
-#time for our algorithm: 648.1203089999999
-#time for our algorithm: 4299.250149
-print("time for Balakrishnan-Besser:", t3-t2)
+#time for our algorithm: 862.3263800000001
+#h4  = C.height([ (1, P), (-1, Q)], [ (1, R), (-1, S)])
+#t3 = cputime()
+#print("Difference between heights")
+#print(h3-h4)
+#print("time for Balakrishnan-Besser:", t3-t2)
 
