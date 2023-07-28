@@ -12,6 +12,9 @@ $P,Q,R,S\in C(\mathbb{Q}_p)$ satisfying the following conditions:
   $D(R)$, $D(\iota(R))$, $D(S)$ and $D(\iota(S))$, where $\iota$ is the
   hyperelliptic involution.
 
+*Authors*
+Stevan Gajović, Steffen Müller
+
 *Dependencies*
 Jennifer Balakrishnan's code for even degree Coleman integrals is required.
 Download it from https://github.com/jbalakrishnan/AWS and follow the 
