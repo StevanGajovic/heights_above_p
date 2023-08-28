@@ -154,18 +154,6 @@ print("time to compute height on X using 4 affine pts", t2-t1)
 print("time to compute height on X using BB12", t3-t2)
 
 
-print("\n In the even degree case, we check that our function gives an answer when the model is not monic, but the leading coefficient is a p-adic square.")
-p = 13
-prec = 10 # Get precision issues for prec = 7
-K = pAdicField(p, prec)
-x = polygen(K)
-f = 3*x^6 + 1
-C = HyperellipticCurve(f)
-P = C(-1,2)
-NP = C(-1,-2)
-g = C.genus()
-print("h13(P-NP, inf_1-inf_2)=", height_infinities_nonmonic_changeto_monic(P, NP, prec))
-
 
 print("\n We show that our algorithm can deal with different complementary subspaces W; namely the unit root subspace and the one obtained from a symplectic basis. We see that both heights are symmetric.")
 p = 11
