@@ -5,7 +5,7 @@ load("../phts_hyp.sage")
 # The final examples take very long.
 
 
-print("We test a few odd degree examples in genus 2 and compare our code to Balakrishnan-Besser.")
+print("\nWe test a few odd degree examples in genus 2 and compare our code to Balakrishnan-Besser.")
 p = 13
 prec = 7
 K = pAdicField(p, prec)
