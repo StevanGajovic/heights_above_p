@@ -1,9 +1,7 @@
+//
 // Compute data to determine the 7-adic height as a bilinear pairing on 
 // J0(107)+. In particular, find suitable representatives to which we can 
-// apply Algorithm 3.1 in GM. Write this data to a .sage file.
-//
-//
-
+// apply Algorithm 3.1 in arXiv:2307.15787. Write this data to a .sage file.
 
 load "good_reps.m";
 _<x> := PolynomialRing(Rationals());

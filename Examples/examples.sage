@@ -172,13 +172,13 @@ print("height wrt default choice of subspace", h0)
 t1 = cputime()
 t1-t0
 W = changebasistounitroot(C)
-h1 = height_four_affine_points(P, Q, R, S, prec, BasisComplementary = W)
+h1 = height_four_affine_points(P, Q, R, S, prec, BasisW = W)
 print("height wrt unit of subspace", h1)
 print("As expected, since unit root subspace is default choice")
 W2 = changebasistosymplectic(C)
-h2 = height_four_affine_points(P, Q, R, S, prec, BasisComplementary = W2)
+h2 = height_four_affine_points(P, Q, R, S, prec, BasisW = W2)
 print("height wrt symplectic subspace", h2)
-h3 = height_four_affine_points(R, S, P, Q, prec, BasisComplementary = W2)
+h3 = height_four_affine_points(R, S, P, Q, prec, BasisW = W2)
 print("height wrt symplectic subspace symmetric?", h2-h3)
 
 
