@@ -1,7 +1,7 @@
 // Compute the rational points on X0(107)+ using quadratic Chabauty for p=7
 // + the Mordell-Weil sieve
 //
-// See §1.1 of GM. 
+// See Section 1.1 of arXiv:2307.15787
 //
 // This uses the Z=1 patch for the CG heights, then the X=1 patch for QC. 
 //
